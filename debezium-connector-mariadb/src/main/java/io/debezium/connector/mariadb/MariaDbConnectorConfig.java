@@ -28,6 +28,7 @@ import io.debezium.connector.binlog.gtid.GtidSetFactory;
 import io.debezium.connector.mariadb.charset.MariaDbCharsetRegistryServiceProvider;
 import io.debezium.connector.mariadb.gtid.MariaDbGtidSetFactory;
 import io.debezium.connector.mariadb.history.MariaDbHistoryRecordComparator;
+import io.debezium.connector.mariadb.jdbc.MariaDbFieldReaderResolverServiceProvider;
 import io.debezium.function.Predicates;
 import io.debezium.relational.history.HistoryRecordComparator;
 
@@ -296,6 +297,7 @@ public class MariaDbConnectorConfig extends BinlogConnectorConfig {
         this.snapshotLockingStrategy = new MariaDbSnapshotLockingStrategy(snapshotLockingMode);
 
         getServiceRegistry().registerServiceProvider(new MariaDbCharsetRegistryServiceProvider());
+        getServiceRegistry().registerServiceProvider(new MariaDbFieldReaderResolverServiceProvider());
     }
 
     @Override

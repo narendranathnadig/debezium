@@ -31,7 +31,6 @@ import io.debezium.connector.common.CdcSourceTaskContext;
 import io.debezium.connector.common.DebeziumHeaderProducer;
 import io.debezium.connector.mysql.jdbc.MySqlConnection;
 import io.debezium.connector.mysql.jdbc.MySqlConnectionConfiguration;
-import io.debezium.connector.mysql.jdbc.MySqlFieldReaderResolver;
 import io.debezium.connector.mysql.jdbc.MySqlValueConverters;
 import io.debezium.document.DocumentReader;
 import io.debezium.heartbeat.HeartbeatFactory;
@@ -106,7 +105,7 @@ public class MySqlConnectorTask extends BinlogSourceTask<MySqlPartition, MySqlOf
 
         MainConnectionProvidingConnectionFactory<BinlogConnectorConnection> connectionFactory = new DefaultMainConnectionProvidingConnectionFactory<>(() -> {
             final MySqlConnectionConfiguration connectionConfig = new MySqlConnectionConfiguration(config);
-            return new MySqlConnection(connectionConfig, MySqlFieldReaderResolver.resolve(connectorConfig));
+            return new MySqlConnection(connectionConfig, connectorConfig.getFieldReader());
         });
 
         connection = connectionFactory.mainConnection();
@@ -226,7 +225,7 @@ public class MySqlConnectorTask extends BinlogSourceTask<MySqlPartition, MySqlOf
                         connectorConfig,
                         () -> new MySqlConnection(
                                 new MySqlConnectionConfiguration(heartbeatConfig),
-                                MySqlFieldReaderResolver.resolve(connectorConfig)),
+                                connectorConfig.getFieldReader()),
                         new BinlogHeartbeatErrorHandler(),
                         queue),
                 schemaNameAdjuster,

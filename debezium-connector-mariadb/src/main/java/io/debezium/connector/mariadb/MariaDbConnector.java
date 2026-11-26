@@ -16,7 +16,6 @@ import io.debezium.config.Field;
 import io.debezium.connector.binlog.BinlogConnector;
 import io.debezium.connector.mariadb.jdbc.MariaDbConnection;
 import io.debezium.connector.mariadb.jdbc.MariaDbConnectionConfiguration;
-import io.debezium.connector.mariadb.jdbc.MariaDbFieldReader;
 import io.debezium.metadata.ConfigDescriptor;
 
 /**
@@ -52,7 +51,7 @@ public class MariaDbConnector extends BinlogConnector<MariaDbConnectorConfig> im
 
     @Override
     protected MariaDbConnection createConnection(Configuration config, MariaDbConnectorConfig connectorConfig) {
-        return new MariaDbConnection(new MariaDbConnectionConfiguration(config), new MariaDbFieldReader(connectorConfig));
+        return new MariaDbConnection(new MariaDbConnectionConfiguration(config), connectorConfig.getFieldReader());
     }
 
     @Override

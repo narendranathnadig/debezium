@@ -16,7 +16,6 @@ import io.debezium.config.Field;
 import io.debezium.connector.binlog.BinlogConnector;
 import io.debezium.connector.mysql.jdbc.MySqlConnection;
 import io.debezium.connector.mysql.jdbc.MySqlConnectionConfiguration;
-import io.debezium.connector.mysql.jdbc.MySqlFieldReaderResolver;
 import io.debezium.metadata.ConfigDescriptor;
 
 /**
@@ -58,7 +57,7 @@ public class MySqlConnector extends BinlogConnector<MySqlConnectorConfig> implem
     protected MySqlConnection createConnection(Configuration config, MySqlConnectorConfig connectorConfig) {
         return new MySqlConnection(
                 new MySqlConnectionConfiguration(config),
-                MySqlFieldReaderResolver.resolve(connectorConfig));
+                connectorConfig.getFieldReader());
     }
 
     @Override

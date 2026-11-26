@@ -24,6 +24,8 @@ import io.debezium.config.Field.ValidationOutput;
 import io.debezium.connector.binlog.gtid.GtidSet;
 import io.debezium.connector.binlog.gtid.GtidSetFactory;
 import io.debezium.connector.binlog.history.BinlogMetadataSchemaHistory;
+import io.debezium.connector.binlog.jdbc.BinlogFieldReader;
+import io.debezium.connector.binlog.jdbc.BinlogFieldReaderResolver;
 import io.debezium.jdbc.JdbcValueConverters.BigIntUnsignedMode;
 import io.debezium.jdbc.TemporalPrecisionMode;
 import io.debezium.relational.ColumnFilterMode;
@@ -862,6 +864,16 @@ public abstract class BinlogConnectorConfig extends HistorizedRelationalDatabase
      */
     public boolean useCursorFetch() {
         return getSnapshotFetchSize() > 0;
+    }
+
+    /**
+     * Get a field reader for reading column values from JDBC result sets, as chosen by the registered
+     * {@link BinlogFieldReaderResolver}.
+     *
+     * @return the field reader, never {@code null}
+     */
+    public BinlogFieldReader getFieldReader() {
+        return getServiceRegistry().getService(BinlogFieldReaderResolver.class).resolve(this);
     }
 
     /**

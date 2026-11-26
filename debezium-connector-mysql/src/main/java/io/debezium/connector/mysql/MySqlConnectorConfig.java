@@ -31,6 +31,7 @@ import io.debezium.connector.binlog.gtid.GtidSetFactory;
 import io.debezium.connector.mysql.charset.MySqlCharsetRegistryServiceProvider;
 import io.debezium.connector.mysql.gtid.MySqlGtidSetFactory;
 import io.debezium.connector.mysql.history.MySqlHistoryRecordComparator;
+import io.debezium.connector.mysql.jdbc.MySqlFieldReaderResolverServiceProvider;
 import io.debezium.function.Predicates;
 import io.debezium.relational.history.HistoryRecordComparator;
 
@@ -292,10 +293,10 @@ public class MySqlConnectorConfig extends BinlogConnectorConfig {
 
     public static final Field JDBC_DRIVER = Field.create(ConfigurationNames.DATABASE_CONFIG_PREFIX + "jdbc.driver")
             .withDisplayName("JDBC Driver Class Name")
-            .withType(Type.CLASS)
+            .withType(Type.STRING)
             .withGroup(Field.createGroupEntry(Field.Group.CONNECTION))
             .withWidth(Width.MEDIUM)
-            .withDefault(com.mysql.cj.jdbc.Driver.class.getName())
+            .withDefault("com.mysql.cj.jdbc.Driver")
             .withImportance(Importance.LOW)
             .withValidation(Field::isClassName)
             .withDescription("JDBC Driver class name used to connect to the MySQL database server.");
@@ -419,6 +420,7 @@ public class MySqlConnectorConfig extends BinlogConnectorConfig {
                 : (gtidSetExcludes != null ? Predicates.excludesUuids(gtidSetExcludes) : null);
 
         getServiceRegistry().registerServiceProvider(new MySqlCharsetRegistryServiceProvider());
+        getServiceRegistry().registerServiceProvider(new MySqlFieldReaderResolverServiceProvider());
     }
 
     public Optional<SnapshotLockingMode> getSnapshotLockingMode() {

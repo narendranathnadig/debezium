@@ -29,12 +29,10 @@ import io.debezium.connector.base.QueueProviderService;
 import io.debezium.connector.binlog.BinlogEventMetadataProvider;
 import io.debezium.connector.binlog.BinlogSourceTask;
 import io.debezium.connector.binlog.jdbc.BinlogConnectorConnection;
-import io.debezium.connector.binlog.jdbc.BinlogFieldReader;
 import io.debezium.connector.common.CdcSourceTaskContext;
 import io.debezium.connector.common.DebeziumHeaderProducer;
 import io.debezium.connector.mariadb.jdbc.MariaDbConnection;
 import io.debezium.connector.mariadb.jdbc.MariaDbConnectionConfiguration;
-import io.debezium.connector.mariadb.jdbc.MariaDbFieldReader;
 import io.debezium.connector.mariadb.jdbc.MariaDbValueConverters;
 import io.debezium.connector.mariadb.metrics.MariaDbChangeEventSourceMetricsFactory;
 import io.debezium.connector.mariadb.metrics.MariaDbStreamingChangeEventSourceMetrics;
@@ -115,7 +113,7 @@ public class MariaDbConnectorTask extends BinlogSourceTask<MariaDbPartition, Mar
 
         final MainConnectionProvidingConnectionFactory<BinlogConnectorConnection> connectionFactory = new DefaultMainConnectionProvidingConnectionFactory<>(() -> {
             final MariaDbConnectionConfiguration connectionConfig = new MariaDbConnectionConfiguration(config);
-            return new MariaDbConnection(connectionConfig, new MariaDbFieldReader(connectorConfig));
+            return new MariaDbConnection(connectionConfig, connectorConfig.getFieldReader());
         });
 
         this.connection = connectionFactory.mainConnection();
@@ -232,7 +230,7 @@ public class MariaDbConnectorTask extends BinlogSourceTask<MariaDbPartition, Mar
                 new HeartbeatFactory<>().getScheduledHeartbeat(connectorConfig,
                         () -> new MariaDbConnection(
                                 new MariaDbConnectionConfiguration(config),
-                                getFieldReader(connectorConfig)),
+                                connectorConfig.getFieldReader()),
                         new BinlogHeartbeatErrorHandler(),
                         queue),
                 schemaNameAdjuster,
@@ -342,10 +340,6 @@ public class MariaDbConnectorTask extends BinlogSourceTask<MariaDbPartition, Mar
                 connectorConfig.getEventConvertingFailureHandlingMode(),
                 connectorConfig.getServiceRegistry(),
                 connectorConfig.getUnavailableValuePlaceholder());
-    }
-
-    private BinlogFieldReader getFieldReader(MariaDbConnectorConfig connectorConfig) {
-        return new MariaDbFieldReader(connectorConfig);
     }
 
     private void validateGuardrailLimits(MariaDbConnectorConfig connectorConfig, BinlogConnectorConnection connection) {

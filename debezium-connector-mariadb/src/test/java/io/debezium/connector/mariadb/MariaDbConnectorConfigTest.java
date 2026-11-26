@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import io.debezium.config.Configuration;
 import io.debezium.connector.binlog.BinlogConnectorConfig;
 import io.debezium.connector.binlog.BinlogOffsetContext;
+import io.debezium.connector.mariadb.jdbc.MariaDbFieldReader;
 import io.debezium.doc.FixFor;
 
 public class MariaDbConnectorConfigTest {
@@ -146,5 +147,19 @@ public class MariaDbConnectorConfigTest {
                 .with(MariaDbConnectorConfig.TOPIC_PREFIX, "mariadb-server")
                 .with(MariaDbConnectorConfig.UNAVAILABLE_VALUE_PLACEHOLDER, placeholder)
                 .build();
+    }
+
+    @Test
+    void shouldUseMariaDbFieldReader() {
+        final Configuration config = Configuration.create()
+                .with(MariaDbConnectorConfig.HOSTNAME, "localhost")
+                .with(MariaDbConnectorConfig.PORT, 3306)
+                .with(MariaDbConnectorConfig.USER, "mariadbuser")
+                .with(MariaDbConnectorConfig.PASSWORD, "mariadbpw")
+                .with(MariaDbConnectorConfig.SERVER_ID, 18765)
+                .with(MariaDbConnectorConfig.TOPIC_PREFIX, "mariadb-server")
+                .build();
+
+        assertThat(new MariaDbConnectorConfig(config).getFieldReader()).isInstanceOf(MariaDbFieldReader.class);
     }
 }

@@ -12,11 +12,14 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.kafka.common.config.ConfigDef.Type;
 import org.junit.jupiter.api.Test;
 
 import io.debezium.config.Configuration;
 import io.debezium.connector.binlog.BinlogConnectorConfig;
 import io.debezium.connector.binlog.BinlogOffsetContext;
+import io.debezium.connector.mysql.jdbc.MySqlBinaryProtocolFieldReader;
+import io.debezium.connector.mysql.jdbc.MySqlTextProtocolFieldReader;
 import io.debezium.doc.FixFor;
 
 public class MySqlConnectorConfigTest {
@@ -144,5 +147,36 @@ public class MySqlConnectorConfigTest {
                 .with(MySqlConnectorConfig.TOPIC_PREFIX, "mysql-server")
                 .with(MySqlConnectorConfig.UNAVAILABLE_VALUE_PLACEHOLDER, placeholder)
                 .build();
+    }
+
+    @Test
+    void shouldDefaultJdbcDriverWithoutLoadingTheDriverClass() {
+        assertThat(MySqlConnectorConfig.JDBC_DRIVER.type()).isEqualTo(Type.STRING);
+        assertThat(MySqlConnectorConfig.JDBC_DRIVER.defaultValueAsString()).isEqualTo("com.mysql.cj.jdbc.Driver");
+    }
+
+    @Test
+    void shouldUseTextProtocolFieldReaderByDefault() {
+        assertThat(new MySqlConnectorConfig(minimalConfig().build()).getFieldReader())
+                .isInstanceOf(MySqlTextProtocolFieldReader.class);
+    }
+
+    @Test
+    void shouldUseBinaryProtocolFieldReaderWithCursorFetch() {
+        final Configuration config = minimalConfig()
+                .with(MySqlConnectorConfig.SNAPSHOT_FETCH_SIZE, 100)
+                .build();
+
+        assertThat(new MySqlConnectorConfig(config).getFieldReader()).isInstanceOf(MySqlBinaryProtocolFieldReader.class);
+    }
+
+    private static Configuration.Builder minimalConfig() {
+        return Configuration.create()
+                .with(MySqlConnectorConfig.HOSTNAME, "localhost")
+                .with(MySqlConnectorConfig.PORT, 3306)
+                .with(MySqlConnectorConfig.USER, "mysqluser")
+                .with(MySqlConnectorConfig.PASSWORD, "mysqlpw")
+                .with(MySqlConnectorConfig.SERVER_ID, 18765)
+                .with(MySqlConnectorConfig.TOPIC_PREFIX, "mysql-server");
     }
 }
